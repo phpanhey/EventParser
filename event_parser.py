@@ -47,8 +47,8 @@ def get_bremen_de_events():
         category = event["categories"][0]["title"]
         url = event["redirectUrl"]
 
-        # if category == "Kinder & Jugend":
-        #     category = "Familie & Jugend"
+        if category == "Kinder & Jugendliche":
+            category = "Familie & Jugend"
 
         res.append(
             {
