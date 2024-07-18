@@ -47,6 +47,9 @@ def get_bremen_de_events():
         category = event["categories"][0]["title"]
         url = event["redirectUrl"]
 
+        if category == "Kinder & Jugend":
+            category = "Familien & Jugendaktivitäten"
+
         res.append(
             {
                 "title": title,
@@ -94,7 +97,7 @@ def get_familienzeit_events():
                     "address": address,
                     "startdate": today,
                     "enddate": today,
-                    "category": "Familienzeit",
+                    "category": "Familien & Jugendaktivitäten",
                     "url": url,
                 }
             )
