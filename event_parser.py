@@ -59,6 +59,7 @@ def get_bremen_de_events():
                 "enddate": enddate,
                 "category": category,
                 "url": url,
+                "src": "bremen.de",
             }
         )
     return res
@@ -99,6 +100,7 @@ def get_familienzeit_events():
                     "enddate": today,
                     "category": "Familie & Jugend",
                     "url": url,
+                    "src": "familienzeit bremen"
                 }
             )
         if data["has_more"] == True:
