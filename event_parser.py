@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 
 def main():
-    events = get_bremen_de_events() + get_familienzeit_events()    
+    events = get_bremen_de_events() + get_familienzeit_events()  + get_mix_online_events()    
     write_events_to_json(events)
 
 
@@ -109,6 +109,21 @@ def get_familienzeit_events():
             has_more = False
     return res
 
+def get_mix_online_events():
+    res = []
+    conn = http.client.HTTPSConnection("www.mix-online.de")
+    endpoint = "/v1/data/termine/get_events.php"
+
+    # Make the POST request
+    conn.request("POST", endpoint)
+
+    # Get the response
+    response = conn.getresponse()
+    data = json.loads(response.read().decode("utf-8"))
+    for elem in data["rows"]:
+        print(elem["rubrik"])    
+    
+    return res
 
 if __name__ == "__main__":
     main()
