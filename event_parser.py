@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 
 def main():
-    events = get_bremen_de_events() + get_familienzeit_events()  + get_mix_online_events()    
+    events = get_bremen_de_events() + get_familienzeit_events() + get_mix_online_events()    
     write_events_to_json(events)
 
 
