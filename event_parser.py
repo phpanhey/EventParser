@@ -140,7 +140,7 @@ def get_mix_online_events():
                     "startdate": elem["datum"],
                     "enddate": elem["datum"],
                     "category": elem["rubrik"],
-                    "url": null,
+                    "url": Null,
                     "src": "mix-online"
                 }
             )     
