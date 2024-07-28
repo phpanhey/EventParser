@@ -121,8 +121,19 @@ def get_mix_online_events():
     response = conn.getresponse()
     data = json.loads(response.read().decode("utf-8"))
     for elem in data["rows"]:
-        print(elem["rubrik"])    
-    
+        if elem["datum_humanized"] == "HEUTE":
+            res.append(
+                {
+                    "title": elem["titel"],
+                    "description": elem["titel"],
+                    "address": elem["verort"],
+                    "startdate": elem["datum"],
+                    "enddate": elem["datum"],
+                    "category": elem["rubrik"],
+                    "url": "https://www.mix-online.de/termine/details.html?eventid=" + elem["eventid"],
+                    "src": "mix-online"
+                }
+            )     
     return res
 
 if __name__ == "__main__":
