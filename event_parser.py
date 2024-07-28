@@ -129,6 +129,9 @@ def get_mix_online_events():
             if elem["rubrik"] == "Kino":
                 elem["rubrik"] = "Film"
                 
+            if elem["rubrik"] == "Bühne":
+                elem["rubrik"] = "Theater & Bühne"
+                
             res.append(
                 {
                     "title": elem["titel"],
