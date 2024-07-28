@@ -126,8 +126,8 @@ def get_mix_online_events():
             if elem["rubrik"] == "Hits für Kids":
                 elem["rubrik"] = "Familie & Jugend"
                 
-            if elem["rubrik"] == "Film":
-                elem["rubrik"] = "Kino"
+            if elem["rubrik"] == "Kino":
+                elem["rubrik"] = "Film"
                 
             res.append(
                 {
