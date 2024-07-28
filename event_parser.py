@@ -122,6 +122,10 @@ def get_mix_online_events():
     data = json.loads(response.read().decode("utf-8"))
     for elem in data["rows"]:
         if elem["datum_humanized"] == "HEUTE":
+            
+            if elem["rubrik"] == "Hits für Kids":
+                elem["rubrik"] = "Familie & Jugend"
+                
             res.append(
                 {
                     "title": elem["titel"],
