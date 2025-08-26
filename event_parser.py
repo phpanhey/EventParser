@@ -4,17 +4,47 @@ import json
 import http.client
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-
+import requests
+from urllib.parse import urljoin
 
 def main():
-    # events = get_bremen_de_events() + get_familienzeit_events() + get_mix_online_events()    
-    events = get_familienzeit_events() + get_mix_online_events()        
+   
+    events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events()        
     write_events_to_json(events)
+    
 
 
 def write_events_to_json(events):
     with open("events.json", "w", encoding="utf-8") as f:
         json.dump(events, f, ensure_ascii=False, indent=4)
+
+def get_rausgegangen_events():
+    date = datetime.date.today().strftime("%Y-%m-%d")
+    base_url = "https://rausgegangen.de"
+    url_prefix = base_url + '/eventsearch/?page='    
+    url_postfix = f"&start_date__gte={date}&start_date__lte={date}&city=bremen"
+    cntr = 1
+    url = url_prefix + str(cntr) + url_postfix
+    r = requests.get(url) 
+    events = []
+    while r.status_code!=404:
+        html = r.text
+        soup = BeautifulSoup(html, 'html.parser')
+        for card in soup.select("div.h-20"):    
+            title = card.select_one("h4")
+            url = card.select_one("a[href]")
+            category = card.select_one(".event-text-pill-outline")
+            address_parts = card.select("div.text-sm.opacity-70")
+            events.append({
+                "title": title.get_text(strip=True) if title else None,
+                "url": urljoin(base_url, url["href"]) if url else None,
+                "category": category.get_text(strip=True) if category else None,
+                "address": " ".join(p.get_text(strip=True).lstrip("|").strip() for p in address_parts)
+            })
+        cntr += 1
+        url = url_prefix + str(cntr) + url_postfix
+        r = requests.get(url)
+    return events
 
 
 def get_bremen_de_events():
@@ -40,7 +70,7 @@ def get_bremen_de_events():
     for event in data:        
         title = event["title"]
         description = event["description"]
-        address = event["address"]["venue"]["address"]
+        address = event["address"]["venue"]["address"]   
         startdate = datetime.datetime.fromtimestamp(
             int(event["nextDate"]) / 1000
         ).strftime("%Y-%m-%d %H:%M:%S")
