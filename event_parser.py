@@ -38,7 +38,7 @@ def get_rausgegangen_events():
             events.append({
                 "title": title.get_text(strip=True) if title else None,
                 "description": "go to url",
-                "data": date,
+                "date": date,
                 "src": "rausgegangen.de",
                 "url": urljoin(base_url, url["href"]) if url else None,
                 "category": category.get_text(strip=True) if category else None,
