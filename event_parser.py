@@ -6,12 +6,12 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin
+from datetime import datetime
 
 def main():
-   
-    events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events()        
+
+    events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events() + get_fomo_events() 
     write_events_to_json(events)
-    
 
 
 def write_events_to_json(events):
@@ -19,7 +19,7 @@ def write_events_to_json(events):
         json.dump(events, f, ensure_ascii=False, indent=4)
 
 def get_rausgegangen_events():
-    date = datetime.date.today().strftime("%Y-%m-%d")
+    date = datetime.today().strftime("%Y-%m-%d")
     base_url = "https://rausgegangen.de"
     url_prefix = base_url + '/eventsearch/?page='    
     url_postfix = f"&start_date__gte={date}&start_date__lte={date}&city=bremen"
@@ -54,7 +54,7 @@ def get_bremen_de_events():
     res = []
     url = "https://login.bremen.de"
     parsed_url = urlparse(url)
-    today = datetime.date.today()
+    today = datetime.today()
     tommorow = today + datetime.timedelta(days=1)
 
     payloadDict = {
@@ -102,7 +102,7 @@ def get_bremen_de_events():
 def get_familienzeit_events():
 
     has_more = True
-    today = datetime.date.today().strftime("%Y-%m-%d")
+    today = datetime.today().strftime("%Y-%m-%d")
     offset = 0
     res = []
 
@@ -178,6 +178,48 @@ def get_mix_online_events():
                     "src": "mix-online"
                 }
             )     
+    return res
+
+def get_fomo_events():
+    url = "https://fomobremen.info"
+
+    parsed_url = urlparse(url)
+    payloadDict = {
+        "operationName": "FetchEvents",
+        "variables": {
+            "orderBy": "BEGINS_ON",
+            "direction": "ASC",
+            "limit": 99
+        },
+        "query": "query FetchEvents($orderBy: EventOrderBy, $direction: SortDirection, $page: Int, $limit: Int) { events(orderBy: $orderBy, direction: $direction, page: $page, limit: $limit) { total elements { id uuid url local title description beginsOn endsOn status visibility insertedAt language picture { id url __typename } publishAt physicalAddress { ...AdressFragment __typename } organizerActor { ...ActorFragment __typename } attributedTo { ...ActorFragment __typename } category tags { ...TagFragment __typename } options { ...EventOptions __typename } __typename } __typename } } fragment AdressFragment on Address { id description geom street locality postalCode region country type url originId timezone __typename } fragment TagFragment on Tag { id slug title __typename } fragment EventOptions on EventOptions { maximumAttendeeCapacity remainingAttendeeCapacity showRemainingAttendeeCapacity anonymousParticipation showStartTime showEndTime timezone offers { price priceCurrency url __typename } participationConditions { title content url __typename } attendees program commentModeration showParticipationPrice hideOrganizerWhenGroupEvent isOnline __typename } fragment ActorFragment on Actor { id avatar { id url __typename } type preferredUsername name domain summary url __typename }"
+    }
+
+
+    headers = {"Content-Type": "application/json"}
+
+    conn = http.client.HTTPSConnection(parsed_url.hostname)
+    conn.request("POST", "/api", json.dumps(payloadDict), headers)
+    response = conn.getresponse()
+
+    data = json.loads(response.read().decode("utf-8"))
+    today_date = datetime.today().strftime('%Y-%m-%d')
+    all_events = data['data']['events']['elements']
+    upcoming_events = [e for e in all_events if today_date in e["beginsOn"]]
+    res = []
+    for elem in upcoming_events:
+        res.append(
+            {
+                    "title": elem["title"],
+                    "description": elem["description"],
+                    #"address": elem["organizerActor"]["physicalAddress"]["description"],
+                    "address": "",
+                    "startdate": today_date,
+                    "enddate": today_date,
+                    "category": "alternativ",
+                    "url": elem["url"],
+                    "src": "fomo bremen"
+            }
+        )
     return res
 
 if __name__ == "__main__":
