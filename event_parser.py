@@ -211,11 +211,10 @@ def get_fomo_events():
             {
                     "title": elem["title"],
                     "description": elem["description"],
-                    #"address": elem["organizerActor"]["physicalAddress"]["description"],
-                    "address": "",
+                    "adress": elem["physicalAddress"]["street"],
                     "startdate": today_date,
                     "enddate": today_date,
-                    "category": "Alternativ",
+                    "category": "alternativ",
                     "url": elem["url"],
                     "src": "fomo bremen"
             }
