@@ -211,7 +211,7 @@ def get_fomo_events():
             {
                     "title": elem["title"],
                     "description": elem["description"],
-                    "adress": elem["physicalAddress"]["street"],
+                    "adress": elem["physicalAddress"]["description"],
                     "startdate": today_date,
                     "enddate": today_date,
                     "category": "Alternativ",
