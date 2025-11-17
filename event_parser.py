@@ -214,7 +214,7 @@ def get_fomo_events():
                     "adress": elem["physicalAddress"]["street"],
                     "startdate": today_date,
                     "enddate": today_date,
-                    "category": "alternativ",
+                    "category": "Alternativ",
                     "url": elem["url"],
                     "src": "fomo bremen"
             }
