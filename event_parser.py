@@ -9,9 +9,8 @@ from urllib.parse import urljoin
 from datetime import datetime
 
 def main():
-
-    events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events() + get_fomo_events()
-    write_events_to_json(events)
+   events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events() + get_fomo_events()
+   write_events_to_json(events)
 
 
 def write_events_to_json(events):
@@ -25,12 +24,13 @@ def get_rausgegangen_events():
     url_postfix = f"&start_date__gte={date}&start_date__lte={date}&city=bremen"
     cntr = 1
     url = url_prefix + str(cntr) + url_postfix
+    print(url)
     r = requests.get(url) 
     events = []
     while r.status_code!=404:
         html = r.text
         soup = BeautifulSoup(html, 'html.parser')
-        for card in soup.select("div.h-20"):
+        for card in soup.select("div.h-28"):
             title = card.select_one("h4")
             url = card.select_one("a[href]")
             category = card.select_one(".event-text-pill-outline")
