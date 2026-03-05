@@ -24,7 +24,6 @@ def get_rausgegangen_events():
     url_postfix = f"&start_date__gte={date}&start_date__lte={date}&city=bremen"
     cntr = 1
     url = url_prefix + str(cntr) + url_postfix
-    print(url)
     r = requests.get(url) 
     events = []
     while r.status_code!=404:
