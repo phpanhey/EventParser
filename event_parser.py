@@ -9,9 +9,8 @@ from urllib.parse import urljoin
 from datetime import datetime
 
 def main():
-   events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events() + get_fomo_events()
-   write_events_to_json(events)
-
+    events = get_rausgegangen_events() + get_familienzeit_events() + get_mix_online_events() + get_fomo_events()
+    write_events_to_json(events)
 
 def write_events_to_json(events):
     with open("events.json", "w", encoding="utf-8") as f:
