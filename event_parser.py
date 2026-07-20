@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from datetime import datetime
 
 def main():
-    events = get_familienzeit_events() + get_mix_online_events() + get_fomo_events()
+    events = get_familienzeit_events() +  get_fomo_events() + get_rausgegangen_events()
     write_events_to_json(events)
 
 def write_events_to_json(events):
@@ -28,19 +28,22 @@ def get_rausgegangen_events():
     while r.status_code!=404:
         html = r.text
         soup = BeautifulSoup(html, 'html.parser')
-        for card in soup.select("div.h-28"):
-            title = card.select_one("h4")
-            url = card.select_one("a[href]")
-            category = card.select_one(".event-text-pill-outline")
-            address_parts = card.select("div.text-sm.opacity-70")
+        for card in soup.select("a.flex[href^='/events/']"):
+            img = card.select_one("img[alt]")
+            title = img["alt"] if img else None
+            card_url = card["href"]
+            category_el = card.select_one("[data-testid='badge-category']")
+            category = category_el.get_text(strip=True) if category_el else None
+            address_el = card.select_one("p")
+            address = address_el.get_text(strip=True) if address_el else None
             events.append({
-                "title": title.get_text(strip=True) if title else None,
+                "title": title,
                 "description": "go to url",
                 "startdate": date,
                 "src": "rausgegangen.de",
-                "url": urljoin(base_url, url["href"]) if url else None,
-                "category": category.get_text(strip=True) if category else None,
-                "address": " ".join(p.get_text(strip=True).lstrip("|").strip() for p in address_parts)
+                "url": urljoin(base_url, card_url),
+                "category": category,
+                "address": address,
             })
         cntr += 1
         url = url_prefix + str(cntr) + url_postfix
