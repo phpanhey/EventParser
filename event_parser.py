@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from datetime import datetime
 
 def main():
-    events = get_familienzeit_events() +  get_fomo_events() + get_rausgegangen_events()
+    events = get_rausgegangen_events() + get_fomo_events() + get_familienzeit_events()
     write_events_to_json(events)
 
 def write_events_to_json(events):
