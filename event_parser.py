@@ -19,35 +19,43 @@ def write_events_to_json(events):
 def get_rausgegangen_events():
     date = datetime.today().strftime("%Y-%m-%d")
     base_url = "https://rausgegangen.de"
-    url_prefix = base_url + '/eventsearch/?page='
-    url_postfix = f"&start_date__gte={date}&start_date__lte={date}&city=bremen"
-    cntr = 1
-    url = url_prefix + str(cntr) + url_postfix
-    r = requests.get(url) 
     events = []
-    while r.status_code!=404:
-        html = r.text
-        soup = BeautifulSoup(html, 'html.parser')
-        for card in soup.select("a.flex[href^='/events/']"):
-            img = card.select_one("img[alt]")
-            title = img["alt"] if img else None
-            card_url = card["href"]
-            category_el = card.select_one("[data-testid='badge-category']")
-            category = category_el.get_text(strip=True) if category_el else None
-            address_el = card.select_one("p")
-            address = address_el.get_text(strip=True) if address_el else None
-            events.append({
-                "title": title,
-                "description": "go to url",
-                "startdate": date,
-                "src": "rausgegangen.de",
-                "url": urljoin(base_url, card_url),
-                "category": category,
-                "address": address,
-            })
-        cntr += 1
-        url = url_prefix + str(cntr) + url_postfix
-        r = requests.get(url)
+    url = f"{base_url}/eventsearch/?start_date__gte={date}&start_date__lte={date}&city=bremen"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; EventParser/1.0)",
+        "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
+    }
+
+    with requests.Session() as session:
+        while url:
+            try:
+                response = session.get(url, headers=headers, timeout=30)
+                response.raise_for_status()
+            except requests.RequestException:
+                break
+
+            html = response.text
+            soup = BeautifulSoup(html, 'html.parser')
+            for card in soup.select("[data-testid='eventsearch-results'] [data-testid='event-tile-wide']"):
+                event_link = card.select_one("a[href]")
+                if not event_link:
+                    continue
+
+                title_el = card.select_one("span.h6")
+                category_el = card.select_one("[data-testid='badge-category']")
+                address_el = card.select_one("p.text-neutral.text-sm.truncate")
+                events.append({
+                    "title": title_el.get_text(strip=True) if title_el else None,
+                    "description": "go to url",
+                    "startdate": date,
+                    "src": "rausgegangen.de",
+                    "url": urljoin(base_url, event_link["href"]),
+                    "category": category_el.get_text(strip=True) if category_el else None,
+                    "address": address_el.get_text(strip=True) if address_el else None,
+                })
+
+            next_page = soup.select_one("nav[aria-label='Seitennavigation'] a[aria-label='Next'][href]")
+            url = urljoin(response.url, next_page["href"]) if next_page else None
     return events
 
 
